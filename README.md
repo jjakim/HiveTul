@@ -19,5 +19,5 @@ is presented is highly dependent on which WeatherUnderground site was queried. S
 information is not recorded by this implementation.
 
 So far (12/14)
-HX711.pl - read the first side of the two input card. pinout set to my system, may need customazation for you.
-PCSensor.pl - trying to read more than just one of the PCSensor products. Able to read model number, have not set up special routines for each model found.
+-HX711.pl - read the first side of the two input card. pinout set to my system, may need customazation for you.
+-PCSensor.pl - trying to read more than just one of the PCSensor products. Able to read model number, have not set up special routines for each model found.
