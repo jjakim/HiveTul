@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# V0.0.1 - 4.13.15jj create database for graphing hive weight
+
+#Creates database - needs to be RUN-ONCE
+rrdtool create hivetul.rrd --step 360 \
+DS:weight:GAUGE:700:0:250 \
+DS:hiveTemp:GAUGE:700:0:175 \
+DS:hiveRH:GAUGE:700:0:100 \
+DS:outsideTemp:GAUGE:700:0:175 \
+RRA:AVERAGE:0.5:1:1680
+# 1680=week 7200=month
+# paste write string here for reference:
+# $HIVE1_WEIGHT:$HIVE1_TEMP:$HIVE1_HUMIDITY:$HIVE1_AMBIENT_TEMP
