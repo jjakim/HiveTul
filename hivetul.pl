@@ -3,15 +3,10 @@
 # ##############################################################################
 #                         hive.pl ver 0.1
 #
-# Reads hive variables, logs them and sends the data to hivetool.net
+# Reads hive variables, logs them and generates plots
+# (future development) sends the data to hivetool.net
 # pure perl implementation 4/7/15 jj
 #
-# May  use:
-# cpw200plus.sh         Reads weight from Adam Equipment CPW200plus scale
-# temperhum.sh          Read temperature and humidity from TEMPerHUM model 2
-# phidget.sh            Read weight from Phidgets Bridge board
-# hx711.sh              Read weight from HX711 board
-# mysql.sh              Log data to local SQL database
 #
 # perl will need:
 # log::Lo4perl
@@ -23,6 +18,9 @@ use strict;
 use warnings;
 
 use Log::Log4perl qw(:easy);
+
+#TODO: clean up the logger configuration.
+
 #initialize logger
 my $log_conf = "/home/pi/logger.conf"; # q(
 #log4perl.rootlogger		=INFO, LOG1
@@ -32,6 +30,7 @@ my $log_conf = "/home/pi/logger.conf"; # q(
 #log4perl.appender.LOG1.layout	=Log::Log4perl::Layout::PatternLayout
 #log4perl.appender.LOGFILE.layout.ConversionPattern	=%D %L %c - %m%n
 #);
+
 Log::Log4perl->init($log_conf);
 #TODO: errors are not redirected to log4perl
 # note about logging:
@@ -42,9 +41,10 @@ Log::Log4perl->init($log_conf);
 
 my $logger = Log::Log4perl->get_logger();
 
+
+
 # Set the hive name(s)
 my $HIVE1_NAME = "XP005";
-
 
 # Set the TEMPerHUM devices
 # To see the devices, run tempered with no argument
@@ -105,7 +105,7 @@ if ( $loop_cnt > 2 ) {
 	$HIVE1_TEMP     = -99;
 	$HIVE1_HUMIDITY = -99;
 }
-print "loop1= ", $loop_cnt, "\n";
+# print "loop1= ", $loop_cnt, "\n";
 
 # Read hive 1 outside temp
 #
@@ -119,7 +119,7 @@ while ( $TEMPerHUMstr eq "" ) {
 	$TEMPerHUMstr = `sudo tempered /dev/hidraw1`;
 	print "--",$TEMPerHUMstr,"--\n";
 	
-	$TEMPerHUMstr =~ /temp[A-Za-z]+\s(\d+\.\d+)/;
+	$TEMPerHUMstr =~ /1: temp[A-Za-z]+\s(\d+\.\d+)/;
 	$HIVE1_AMBIENT_TEMP = $1;
 	$loop_cnt += 1;
 
@@ -132,9 +132,9 @@ if ( $loop_cnt > 2 ) {
 	$logger->info( "ExtTemp looped ", $loop_cnt );
 	$HIVE1_AMBIENT_TEMP = -99;
 }
-print "loop2= ", $loop_cnt, "\n";
+# print "loop2= ", $loop_cnt, "\n";
 
-print $HIVE1_WEIGHT," ", $HIVE1_TEMP, " ",$HIVE1_HUMIDITY, " ",$HIVE1_AMBIENT_TEMP, "\n";
+# print $HIVE1_WEIGHT," ", $HIVE1_TEMP, " ",$HIVE1_HUMIDITY, " ",$HIVE1_AMBIENT_TEMP, "\n";
 
 $rrd =
 `sudo /usr/bin/rrdtool update /home/pi/hivetul.rrd N:$HIVE1_WEIGHT:$HIVE1_TEMP:$HIVE1_HUMIDITY:$HIVE1_AMBIENT_TEMP`;
