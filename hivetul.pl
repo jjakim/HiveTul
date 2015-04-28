@@ -69,29 +69,49 @@ my $TEMPerHUMstr       = "";
 my $wx_xml             = "";
 my $rrd;
 my $loop_cnt = 0;
+my $datestr;
+my $csvlog;
+my $data_good=0;
+my $counter=1;
+my $weight;
+my $hx711_zero=0;
+my $hx711_slope=20000;
+
+$datestr = localtime();
 
 # ### END OF SETUP ###
 
 #
 # Read scale 1
 #
-$HIVE1_WEIGHT = 1383171;
-$HIVE1_WEIGHT = $HIVE1_WEIGHT / 20000;    # approx. between 20k & 20121
+#$HIVE1_WEIGHT = 1383171; # dummy value for debugging.
+#$HIVE1_WEIGHT = $HIVE1_WEIGHT / 20000;    # approx. between 20k & 20121
 #
+# read the scale
+
+while ( $counter < 5 && $data_good == 00){
+$weight = `sudo /usr/bin/timeout 5 /home/pi/hx711/hx711 $hx711_zero`;
+if ($weight) {
+$data_good=1;
+}
+else
+{
+$counter++;
+}
+}
+$HIVE1_WEIGHT=($weight / $hx711_slope);
 
 # Read hive 1 inside temp and humidity
 #
 $loop_cnt = 0;
 $TEMPerHUMstr       = "";
 while ( $TEMPerHUMstr eq "" ) {
-
-#TODO: Error trapping not working with temperhum
 if ($loop_cnt >= 1){
 		print ".";	
 		sleep 10;
 		 	}
 	$TEMPerHUMstr = `sudo tempered /dev/hidraw3`;
-	print "-",$TEMPerHUMstr,"-\n";
+	# print "-",$TEMPerHUMstr,"-\n";
 	$TEMPerHUMstr =~ /temp[A-Za-z]+\s(\d+\.\d+)/;
 	$HIVE1_TEMP = $1;
 	$TEMPerHUMstr =~ /humid[A-Za-z]+\s(\d+\.\d+)/;
@@ -101,7 +121,7 @@ if ($loop_cnt >= 1){
 		 }
 }
 if ( $loop_cnt > 2 ) {
-	$logger->info( "IntTemp looped ", $loop_cnt );
+	$logger->info( $datestr, "IntTemp looped ", $loop_cnt );
 	$HIVE1_TEMP     = -99;
 	$HIVE1_HUMIDITY = -99;
 }
@@ -117,7 +137,7 @@ while ( $TEMPerHUMstr eq "" ) {
 		sleep 10;
 		 	}
 	$TEMPerHUMstr = `sudo tempered /dev/hidraw1`;
-	print "--",$TEMPerHUMstr,"--\n";
+	# print "--",$TEMPerHUMstr,"--\n";
 	
 	$TEMPerHUMstr =~ /1: temp[A-Za-z]+\s(\d+\.\d+)/;
 	$HIVE1_AMBIENT_TEMP = $1;
@@ -129,17 +149,22 @@ while ( $TEMPerHUMstr eq "" ) {
 		 
 }
 if ( $loop_cnt > 2 ) {
-	$logger->info( "ExtTemp looped ", $loop_cnt );
+	$logger->info( $datestr, "ExtTemp looped ", $loop_cnt );
 	$HIVE1_AMBIENT_TEMP = -99;
 }
 # print "loop2= ", $loop_cnt, "\n";
 
-# print $HIVE1_WEIGHT," ", $HIVE1_TEMP, " ",$HIVE1_HUMIDITY, " ",$HIVE1_AMBIENT_TEMP, "\n";
+
+
+$csvlog = '/home/pi/hivetul.csv';
+open(my $fh, '>>', $csvlog ) or $logger->info( $datestr, "unable to open csvfile" );
+print $fh $datestr,", ",$HIVE1_WEIGHT,", ", $HIVE1_TEMP, ", ",$HIVE1_HUMIDITY, ", ",$HIVE1_AMBIENT_TEMP, "\n";
+close $fh;
 
 $rrd =
 `sudo /usr/bin/rrdtool update /home/pi/hivetul.rrd N:$HIVE1_WEIGHT:$HIVE1_TEMP:$HIVE1_HUMIDITY:$HIVE1_AMBIENT_TEMP`;
 
-print $rrd, "\n";
+#print $rrd, "\n";  #no response??
 
 ##
 ## Write everything to hive 1 log file
