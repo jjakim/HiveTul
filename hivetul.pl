@@ -97,6 +97,7 @@ $data_good=1;
 else
 {
 $counter++;
+$logger->warn( $datestr, "hx711 looped ", $counter );
 }
 }
 $HIVE1_WEIGHT=($weight / $hx711_slope);
@@ -106,22 +107,22 @@ $HIVE1_WEIGHT=($weight / $hx711_slope);
 $loop_cnt = 0;
 $TEMPerHUMstr       = "";
 while ( $TEMPerHUMstr eq "" ) {
-if ($loop_cnt >= 1){
-		print ".";	
+	$loop_cnt += 1;
+	if ($loop_cnt >= 2){
+#		print ".";	
 		sleep 10;
 		 	}
-	$TEMPerHUMstr = `sudo tempered /dev/hidraw3`;
+	if ( $loop_cnt > 5 ) { last;
+		 }
+	EVAL{$TEMPerHUMstr = `sudo tempered /dev/hidraw3`} or next;
 	# print "-",$TEMPerHUMstr,"-\n";
 	$TEMPerHUMstr =~ /temp[A-Za-z]+\s(\d+\.\d+)/;
 	$HIVE1_TEMP = $1;
 	$TEMPerHUMstr =~ /humid[A-Za-z]+\s(\d+\.\d+)/;
 	$HIVE1_HUMIDITY = $1;
-	$loop_cnt += 1;
-	if ( $loop_cnt > 5 ) { last;
-		 }
 }
 if ( $loop_cnt > 2 ) {
-	$logger->info( $datestr, "IntTemp looped ", $loop_cnt );
+	$logger->warn( $datestr, "IntTemp looped ", $loop_cnt );
 	$HIVE1_TEMP     = -99;
 	$HIVE1_HUMIDITY = -99;
 }
@@ -149,22 +150,24 @@ while ( $TEMPerHUMstr eq "" ) {
 		 
 }
 if ( $loop_cnt > 2 ) {
-	$logger->info( $datestr, "ExtTemp looped ", $loop_cnt );
+	$logger->warn( $datestr, "ExtTemp looped ", $loop_cnt );
 	$HIVE1_AMBIENT_TEMP = -99;
 }
 # print "loop2= ", $loop_cnt, "\n";
 
 
-
-$csvlog = '/home/pi/hivetul.csv';
-open(my $fh, '>>', $csvlog ) or $logger->info( $datestr, "unable to open csvfile" );
-print $fh $datestr,", ",$HIVE1_WEIGHT,", ", $HIVE1_TEMP, ", ",$HIVE1_HUMIDITY, ", ",$HIVE1_AMBIENT_TEMP, "\n";
-close $fh;
+# File gets too big - too quick.
+#$csvlog = '/home/pi/hivetul.csv';
+#open(my $fh, '>>', $csvlog ) or $logger->info( $datestr, "unable to open csvfile" );
+#print $fh $datestr,", ",$HIVE1_WEIGHT,", ", $HIVE1_TEMP, ", ",$HIVE1_HUMIDITY, ", ",$HIVE1_AMBIENT_TEMP, "\n";
+#close $fh;
 
 $rrd =
 `sudo /usr/bin/rrdtool update /home/pi/hivetul.rrd N:$HIVE1_WEIGHT:$HIVE1_TEMP:$HIVE1_HUMIDITY:$HIVE1_AMBIENT_TEMP`;
 
 #print $rrd, "\n";  #no response??
+#log everything
+	$logger->info($datestr,", ",$HIVE1_WEIGHT,", ", $HIVE1_TEMP, ", ",$HIVE1_HUMIDITY, ", ",$HIVE1_AMBIENT_TEMP, "\n" );
 
 ##
 ## Write everything to hive 1 log file
