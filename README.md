@@ -7,17 +7,12 @@ The name is a corruption of the original name.
 
 ReadMe - jjakim hivetul - perl implementation of Hivetool.
 
-Some philosophy first:
-Each of the modules are written such that they can be run from the command line 
-as well as being called from within the app. This means that there are no assumptions 
-and that each routine is truly atomic. Note that they do need log:Log4Perl to be loaded.
+Ok, I guess I should call this 'second generation' or some-such.
 
-This is a 'lite' implementation. The database only stores 'original' information. 
-The weather is well recorded elsewhere, and the precise values at any given moment are not 
-worth the data handling overhead. I found that *what* data is available varied and *how* it
-is presented is highly dependent on which WeatherUnderground site was queried. So that 
-information is not recorded by this implementation.
+For starts, I munged the code for simplicity. So I ditched the sql database in favor of RRD. I added log4perl - both for logging (duh) and for the RRD plugin. I figured that weather is archived and recorded in enough *other* places, I didn't need to look it up and store it here. Besides, every stinkin' wunderground site hade a different dataset. And after my first installed and working system, I felt that the temperature and humidity had long term research value - but told me nothing day-to-day. And the PCSensors were $25 each.
+What I was left with was a scale - just a scale, and the focus to target the mythical sub-$100 scale. I believe I have achieved that, IF you don't count the time and manpower. So a 'hacker' or 'maker' can put one together for sub$100. Next (for me, at least) is a comercial, or ready-for-commercial implementation. 
 
+ok, here are some 'release notes' - I'm still getting comfortable with git.
 So far (12/14)
 -HX711.pl - read the first side of the two input card. pinout set to my system, may need customazation for you.
 -PCSensor.pl - trying to read more than just one of the PCSensor products. Able to read model number, have not set up special routines for each model found.
