@@ -14,9 +14,8 @@ For starts, I munged the code for simplicity. So I ditched the sql database in f
 
 What I was left with was a scale - just a scale, and the focus to target the mythical sub-$100 scale. I believe I have achieved that, IF you don't count the time and manpower. So a 'hacker' or 'maker' can put one together for sub$100. Next (for me, at least) is a comercial, or ready-for-commercial implementation. 
 
-Ok, so what HAVE I done? Well stop over to joggingbuddha.net where I have some of my results (This past year I had a problem with robbing bees - so I have not been as active as I would like.) Heres the link:
+Ok, so what HAVE I done? Well stop over to joggingbuddha.net where I have some of my results (This past year I had a problem with robbing bees - so I have not been as active as I would like.) Heres the link: [link removed - hosting service corrupted the SQL database behind the blog and lost the site, I decided to not send them any more money.)
 ...
-[Joggingbuddha - hivetul](http://www.joggingbuddha.net/?cat=12)
 ...
 
 ok, here are some 'release notes' - I'm still getting comfortable with git.
